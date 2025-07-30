@@ -1,0 +1,74 @@
+
+@import 'bootstrap/dist/css/bootstrap.min.css';
+/* Custom styles */
+.prose {
+    max-width: 100%;
+    color: #374151;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+    color: #111827;
+    font-weight: 700;
+}
+
+.prose p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+
+
+/* Buttons */
+.btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+}
+
+.btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.btn-secondary {
+    @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+}
+
+/* Forms */
+.form-input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition;
+}
+
+.form-textarea {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition;
+}
+
+/* Cards */
+.card {
+    @apply bg-white rounded-lg shadow-md overflow-hidden transition-shadow hover:shadow-lg;
+}
+
+/* Navigation */
+.nav-link {
+    @apply text-gray-700 hover:text-blue-600 transition-colors;
+}
+
+/* Avatar */
+.avatar {
+    @apply rounded-full object-cover;
+}
+
+/* Pagination */
+.pagination {
+    @apply flex justify-center space-x-2;
+}
+
+.pagination-link {
+    @apply px-4 py-2 border rounded-lg hover:bg-gray-100;
+}
+
+.pagination-link.active {
+    @apply bg-blue-600 text-white border-blue-600;
+}
+
+/* Mobile menu */
+.mobile-menu {
+    @apply transition-all duration-300 ease-in-out;
+}
