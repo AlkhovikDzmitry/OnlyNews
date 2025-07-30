@@ -77,3 +77,11 @@ Route::middleware('auth')->group(function () {
     Route::put('/posts/{id}', [PostController::class, 'update'])->name('posts.update');
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
 });
+
+
+
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/posts', [\App\Http\Controllers\Admin\PostController::class, 'index'])->name('admin.posts.index');
+    Route::post('/posts/{post}/approve', [\App\Http\Controllers\Admin\PostController::class, 'approve'])->name('admin.posts.approve');
+    Route::post('/posts/{post}/reject', [\App\Http\Controllers\Admin\PostController::class, 'reject'])->name('admin.posts.reject');
+});

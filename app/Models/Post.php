@@ -20,9 +20,28 @@ class Post extends Model
         'author_id',
         'published_at',
         'reading_time',
-        'user_id'
+        'user_id',
+        'status',
         
     ];
+
+    const STATUS_PENDING = 'pending';
+    const STATUS_APPROVED = 'approved';
+    const STATUS_REJECTED = 'rejected';
+
+    protected $attributes = [
+        'status' => self::STATUS_PENDING
+    ];
+
+    public function scopePending($query)
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('status', self::STATUS_APPROVED);
+    }
 
     protected $casts = [
         'published_at' => 'datetime',

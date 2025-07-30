@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -10,13 +9,12 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-  public function up()
-{
-    Schema::table('posts', function (Blueprint $table) {
-        $table->unsignedBigInteger('author_id');
-        $table->foreign('author_id')->references('id')->on('users');
-    });
-}
+    public function up(): void
+    {
+        Schema::table('posts', function (Blueprint $table) {
+             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+        });
+    }
 
     /**
      * Reverse the migrations.

@@ -27,9 +27,29 @@ class PostController extends Controller
 
 public function show(Post $post)
 {
+    // Проверяем, может ли текущий пользователь просматривать пост
+    if ($post->status !== Post::STATUS_APPROVED) {
+        // Если пользователь не администратор И не автор поста - 404
+        if (!auth()->check() || (auth()->id() !== $post->user_id && !auth()->user()->is_admin)) {
+            abort(404);
+        }
+        
+        // Для автора и админа добавляем информацию о статусе
+        session()->flash('info', $this->getStatusMessage($post->status));
+    }
+
+
     return view('posts.show', compact('post'));
 }
 
+private function getStatusMessage(string $status): string
+{
+    return match ($status) {
+        Post::STATUS_PENDING => 'Этот пост находится на модерации и пока не виден другим пользователям',
+        Post::STATUS_REJECTED => 'Этот пост был отклонен модератором',
+        default => '',
+    };
+}
     public function create()
     {
         $categories = Category::all();
@@ -39,42 +59,44 @@ public function show(Post $post)
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255|unique:posts,title',
-            'content' => 'required|string',
-            'category_id' => 'required|exists:categories,id',
-            'tags' => 'nullable|array',
-            'tags.*' => 'exists:tags,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'published_at' => 'nullable|date|after_or_equal:now',
-        ]);
+{
+    $validated = $request->validate([
+        'title' => 'required|string|max:255|unique:posts,title',
+        'content' => 'required|string',
+        'category_id' => 'required|exists:categories,id',
+        'tags' => 'nullable|array',
+        'tags.*' => 'exists:tags,id',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        'published_at' => 'nullable|date|after_or_equal:now',
+    ]);
 
-        $post = new Post();
-        $post->user_id = auth()->id();
-        $post->title = $validated['title'];
-        $post->content = $validated['content'];
-        $post->category_id = $validated['category_id'];
-        $post->author_id = Auth::id();
-        $post->published_at = $validated['published_at'] ?? now();
-        $post->reading_time = $this->calculateReadingTime($request->content);
+    $post = new Post();
+    $post->user_id = auth()->id();
+    $post->title = $validated['title'];
+    $post->content = $validated['content'];
+    $post->category_id = $validated['category_id'];
+    $post->author_id = Auth::id();
+    $post->status = Post::STATUS_PENDING; // Добавляем статус модерации
+    $post->published_at = $validated['published_at'] ?? now();
+    $post->reading_time = $this->calculateReadingTime($request->content);
 
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('posts', 'public');
-            $post->image = $imagePath;
-        }
-
-        $post->save();
-
-        if (!empty($validated['tags'])) {
-            $post->tags()->sync($validated['tags']);
-        }
-
-        return redirect()->route('posts.show', $post->slug)
-           ->with('success', 'Пост успешно создан!');
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('posts', 'public');
+        $post->image = $imagePath;
     }
-    
 
+    $post->save();
+
+    if (!empty($validated['tags'])) {
+        $post->tags()->sync($validated['tags']);
+    }
+
+    // Отправляем уведомление администраторам (опционально)
+    //Notification::send(User::where('is_admin', true)->get(), new NewPostForReview($post));
+
+    return redirect()->route('posts.show', $post->slug)
+       ->with('success', 'Пост успешно создан и отправлен на модерацию. Он станет видимым после одобрения администратором.');
+}
     protected function calculateReadingTime($content)
     {
         $wordCount = str_word_count(strip_tags($content));

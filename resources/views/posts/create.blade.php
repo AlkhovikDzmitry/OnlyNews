@@ -7,6 +7,13 @@
             <div class="card shadow-sm">
                 <div class="card-body p-5">
                     <h1 class="h2 mb-4 text-dark fw-bold">Создать новый пост</h1>
+
+                       @if(session('success'))
+                        <div class="alert alert-success mb-4">
+                            <i class="bi bi-check-circle me-2"></i>
+                            {{ session('success') }}
+                        </div>
+                    @endif
                     
                     <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data">
                         @csrf

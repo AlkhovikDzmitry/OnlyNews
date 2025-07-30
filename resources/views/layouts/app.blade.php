@@ -11,6 +11,20 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            background-color: #f8f9fa;
+        }
+        .content {
+            flex: 1 0 auto;
+        }
+        .footer {
+            flex-shrink: 0;
+        }
         .avatar-sm {
             width: 30px;
             height: 30px;
@@ -25,6 +39,7 @@
 </head>
 <body class="bg-light">
     <!-- Навбар -->
+     
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
            <a class="navbar-brand text-primary fw-bold" href="{{ route('home') }}">OnlyNews</a>
@@ -41,6 +56,11 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav">
+                    @if(auth()->check() && auth()->user()->is_admin)
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.posts.index') }}">Модерация</a>
+                        </li>
+                    @endif
                     @auth
                         <li class="nav-item">
                             @if(Auth::user()->avatar)
@@ -72,12 +92,12 @@
     </nav>
 
     <!-- Основной контент -->
-    <main class="container my-5">
+    <main class="content container my-5">
         @yield('content')
     </main>
 
     <!-- Футер -->
-    <footer class="bg-white py-4 mt-5 border-top">
+    <footer class="footer bg-white py-4 border-top">
         <div class="container text-center text-muted">
             © {{ date('Y') }} OnlyNews. Все права защищены.
         </div>

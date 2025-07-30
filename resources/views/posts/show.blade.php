@@ -4,6 +4,13 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
+
+              @if(session('info'))
+                <div class="alert alert-info mb-4">
+                    <i class="bi bi-info-circle me-2"></i>
+                    {{ session('info') }}
+                </div>
+            @endif
             <article class="card shadow-sm mb-5">
                 <img src="{{ $post->image_url }}" class="card-img-top" alt="{{ $post->title }}">
                 <div class="card-body p-5">
@@ -50,7 +57,7 @@
     </div>
 </div>
 
-
+@if($post->status === \App\Models\Post::STATUS_APPROVED)
 <section class="mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
@@ -105,7 +112,11 @@
         </div>
     </div>
 </section>
-
+@else
+    <div class="alert alert-info mt-5 text-center">
+        Комментарии будут доступны после одобрения поста модератором
+    </div>
+@endif
 
 
 
