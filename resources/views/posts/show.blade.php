@@ -114,7 +114,11 @@
 </section>
 @else
     <div class="alert alert-info mt-5 text-center">
-        Комментарии будут доступны после одобрения поста модератором
+        @if($post->status === \App\Models\Post::STATUS_PENDING)
+            Пост находится на модерации. Комментарии будут доступны после одобрения.
+        @else
+            Пост был отклонен модератором.
+        @endif
     </div>
 @endif
 
