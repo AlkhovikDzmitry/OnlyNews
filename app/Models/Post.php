@@ -70,6 +70,11 @@ class Post extends Model
 
     // Связи
 
+     public function images()
+    {
+        return $this->hasMany(PostImage::class);
+    }
+
     public function comments()
     {
         return $this->hasMany(Comment::class)->latest();
