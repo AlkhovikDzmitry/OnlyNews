@@ -3,28 +3,30 @@
 @section('content')
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-lg-10">
             <div class="card shadow-sm">
                 <div class="card-body p-5">
                     <h1 class="h2 mb-4 text-dark fw-bold">Создать новый пост</h1>
 
-                       @if(session('success'))
+                    @if(session('success'))
                         <div class="alert alert-success mb-4">
                             <i class="bi bi-check-circle me-2"></i>
                             {{ session('success') }}
                         </div>
                     @endif
-                    
+
                     <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data">
                         @csrf
-                        
+
+                        <!-- Заголовок -->
                         <div class="mb-4">
                             <label for="title" class="form-label fw-medium">Заголовок</label>
-                            <input type="text" id="title" name="title" 
-                                   class="form-control form-control-lg" 
+                            <input type="text" id="title" name="title"
+                                   class="form-control form-control-lg"
                                    value="{{ old('title') }}" required>
                         </div>
-                        
+
+                        <!-- Категория -->
                         <div class="mb-4">
                             <label for="category_id" class="form-label fw-medium">Категория</label>
                             <select id="category_id" name="category_id" class="form-select form-select-lg" required>
@@ -36,25 +38,37 @@
                                 @endforeach
                             </select>
                         </div>
-                        
+
+                        <!-- Титульное изображение -->
                         <div class="mb-4">
-                            <label for="content" class="form-label fw-medium">Содержание</label>
-                            <textarea id="content" name="content" rows="10"
-                                      class="form-control form-control-lg" required>{{ old('content') }}</textarea>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="image" class="form-label fw-medium">Изображение</label>
-                            <input type="file" id="image" name="image" 
+                            <label for="image" class="form-label fw-medium">Титульное изображение</label>
+                            <input type="file" id="image" name="image"
                                    class="form-control form-control-lg"
+                                   accept="image/*"
                                    onchange="previewImage(this)">
                             <div class="mt-3">
-                                <img id="image-preview" src="#" alt="Предпросмотр изображения" 
+                                <img id="image-preview" src="#" alt="Предпросмотр"
                                      class="img-fluid rounded d-none"
                                      style="max-height: 300px; object-fit: cover;">
                             </div>
                         </div>
-                        
+
+                        <!-- КРАТКОЕ ОПИСАНИЕ (НОВОЕ ПОЛЕ) -->
+                        <div class="mb-4">
+                            <label for="excerpt" class="form-label fw-medium">Краткое описание</label>
+                            <textarea id="excerpt" name="excerpt" rows="3"
+                                      class="form-control"
+                                      placeholder="Краткое описание поста (будет отображаться в превью)">{{ old('excerpt') }}</textarea>
+                            <small class="text-muted">Краткое описание для карточки поста на главной странице</small>
+                        </div>
+
+                        <!-- ПОЛНЫЙ ТЕКСТ С РЕДАКТОРОМ -->
+                        <div class="mb-4">
+                            <label for="content" class="form-label fw-medium">Содержание</label>
+                            <textarea id="content" name="content" rows="10"
+                                      class="form-control" required>{{ old('content') }}</textarea>
+                        </div>
+
                         <div class="d-flex justify-content-between align-items-center mt-5">
                             <a href="{{ route('profile') }}" class="btn btn-outline-secondary rounded-pill px-4">
                                 <i class="bi bi-arrow-left me-2"></i>Назад
@@ -71,192 +85,80 @@
 </div>
 
 <script>
+    // Предпросмотр титульного изображения
     function previewImage(input) {
         const preview = document.getElementById('image-preview');
         const file = input.files[0];
-        
+
         if (file) {
             const reader = new FileReader();
-            
             reader.onload = function(e) {
                 preview.src = e.target.result;
                 preview.classList.remove('d-none');
             }
-            
             reader.readAsDataURL(file);
         } else {
             preview.src = '#';
             preview.classList.add('d-none');
         }
     }
-</script>
-@endsection
 
+    // Инициализация Summernote редактора
+    $(document).ready(function() {
+        $('#content').summernote({
+            height: 400,
+            placeholder: 'Введите текст поста...',
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'italic', 'underline', 'clear']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ],
+            callbacks: {
+                onImageUpload: function(files) {
+                    uploadImage(files[0]);
+                }
+            }
+        });
 
+        // Функция загрузки изображения через редактор
+        function uploadImage(file) {
+            let formData = new FormData();
+            formData.append('image', file);
+            formData.append('_token', '{{ csrf_token() }}');
 
-
-
-
-<!-- с добавлением изображдений нескольких, но надо доработь т.к. при публикации не отображаются все изобрадения, даже вообще не отображаются  -->
-
-<!-- @extends('layouts.app')
-
-@section('content')
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-body p-5">
-                    <h1 class="h2 mb-4 text-dark fw-bold">Создать новый пост</h1>
-
-                       @if(session('success'))
-                        <div class="alert alert-success mb-4">
-                            <i class="bi bi-check-circle me-2"></i>
-                            {{ session('success') }}
-                        </div>
-                    @endif
-                    
-                    <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data">
-                        @csrf
-                        
-                        <div class="mb-4">
-                            <label for="title" class="form-label fw-medium">Заголовок</label>
-                            <input type="text" id="title" name="title" 
-                                   class="form-control form-control-lg" 
-                                   value="{{ old('title') }}" required>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="category_id" class="form-label fw-medium">Категория</label>
-                            <select id="category_id" name="category_id" class="form-select form-select-lg" required>
-                                <option value="">Выберите категорию</option>
-                                @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                                        {{ $category->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="content" class="form-label fw-medium">Содержание</label>
-                            <textarea id="content" name="content" rows="10"
-                                      class="form-control form-control-lg" required>{{ old('content') }}</textarea>
-                        </div>
-                        
-                      <div class="mb-4">
-                            <label class="form-label fw-medium">Изображения</label>
-                            
-                            <div id="drop-zone" 
-                                class="border border-dashed border-2 rounded-3 p-5 text-center"
-                                style="border-color: #6c757d !important; cursor: pointer;"
-                                ondragover="handleDragOver(event)"
-                                ondrop="handleDrop(event)"
-                                onclick="document.getElementById('images-input').click()">
-                                
-                                <i class="bi bi-cloud-upload fs-1 text-muted"></i>
-                                <p class="mt-2 mb-0">Перетащите изображения сюда или кликните для выбора</p>
-                                <small class="text-muted">Максимум 5 изображений</small>
-                            </div>
-                            
-                            <input type="file" id="images-input" name="images[]" 
-                                class="d-none" multiple accept="image/*"
-                                onchange="handleFileSelect(this)">
-                            
-                            <div id="images-preview" class="row mt-3"></div>
-                        </div>
-                                                
-                        <div class="d-flex justify-content-between align-items-center mt-5">
-                            <a href="{{ route('profile') }}" class="btn btn-outline-secondary rounded-pill px-4">
-                                <i class="bi bi-arrow-left me-2"></i>Назад
-                            </a>
-                            <button type="submit" class="btn btn-primary rounded-pill px-4">
-                                <i class="bi bi-save me-2"></i>Опубликовать
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<style>
-    .border-dashed {
-    border-style: dashed !important;
-}
-
-#drop-zone:hover {
-    border-color: #0d6efd !important;
-    background-color: #f8f9fa;
-}
-</style>
-
-
-<script>
-function handleDragOver(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    e.currentTarget.style.borderColor = '#0d6efd';
-}
-
-function handleDrop(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    e.currentTarget.style.borderColor = '#6c757d';
-    
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-        previewMultipleImages(files);
-    }
-}
-
-function handleFileSelect(input) {
-    if (input.files.length > 0) {
-        previewMultipleImages(input.files);
-    }
-}
-
-function previewMultipleImages(files) {
-    const previewContainer = document.getElementById('images-preview');
-    const existingPreviews = previewContainer.querySelectorAll('.preview-item').length;
-    const availableSlots = 5 - existingPreviews;
-    
-    if (availableSlots <= 0) {
-        alert('Максимум 5 изображений');
-        return;
-    }
-    
-    const filesToAdd = Array.from(files).slice(0, availableSlots);
-    
-    filesToAdd.forEach((file, index) => {
-        if (file.type.match('image.*')) {
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                const totalIndex = existingPreviews + index;
-                const col = document.createElement('div');
-                col.className = 'col-md-3 col-sm-6 mb-3 preview-item';
-                
-                col.innerHTML = `
-                    <div class="position-relative">
-                        <img src="${e.target.result}" 
-                             alt="Предпросмотр ${totalIndex + 1}" 
-                             class="img-fluid rounded"
-                             style="height: 120px; width: 100%; object-fit: cover;">
-                        <button type="button" class="btn-close position-absolute top-0 end-0 bg-white"
-                                onclick="this.closest('.preview-item').remove()" 
-                                style="margin: 5px;"></button>
-                    </div>
-                `;
-                
-                previewContainer.appendChild(col);
-            };
-            
-            reader.readAsDataURL(file);
+            $.ajax({
+                url: '{{ route("posts.upload-image") }}',
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    if (response.url) {
+                        $('#content').summernote('insertImage', response.url);
+                    }
+                },
+                error: function(xhr) {
+                    console.log('Ошибка загрузки:', xhr.responseText);
+                    alert('Ошибка при загрузке изображения');
+                }
+            });
         }
     });
-}
 </script>
-@endsection -->
+
+<style>
+    .note-editor {
+        border-radius: 0.5rem;
+        border-color: #dee2e6;
+    }
+    .note-toolbar {
+        border-radius: 0.5rem 0.5rem 0 0;
+        background-color: #f8f9fa;
+    }
+</style>
+@endsection

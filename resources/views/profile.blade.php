@@ -7,30 +7,30 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body p-5">
                     <h1 class="h2 mb-5 text-dark fw-bold">Личный кабинет</h1>
-                    
+
                     <div class="row">
                         <!-- Боковая панель -->
                         <div class="col-md-4 mb-4 mb-md-0">
                             <div class="text-center">
-                                <img src="{{ Auth::user()->avatar_url ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=random' }}" 
+                                <img src="{{ Auth::user()->avatar_url ?? 'https://ui-avatars.com/api/?name='.urlencode(Auth::user()->name).'&background=random' }}"
                                      id="avatar-preview"
                                      class="rounded-circle object-cover border border-3 border-primary mb-4"
                                      style="width: 150px; height: 150px; object-fit: cover;">
-                                
+
                                 <form id="avatar-form" method="POST" action="{{ route('profile.avatar') }}" enctype="multipart/form-data">
                                     @csrf
                                     <input type="file" name="avatar" id="avatar-input" class="d-none" accept="image/*">
-                                    <label for="avatar-input" 
+                                    <label for="avatar-input"
                                            class="btn btn-outline-primary px-4 py-2 rounded-pill cursor-pointer">
                                         <i class="bi bi-camera me-2"></i>Сменить аватар
                                     </label>
                                 </form>
-                                
+
                                 <h2 class="h4 mt-4 mb-1 fw-bold text-dark">{{ Auth::user()->name }}</h2>
                                 <p class="text-muted small">{{ Auth::user()->email }}</p>
-                                
+
                                 <div class="mt-4 pt-3 border-top">
-                                    <a href="{{ route('logout') }}" 
+                                    <a href="{{ route('logout') }}"
                                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                                        class="btn btn-sm btn-outline-danger rounded-pill px-3">
                                         <i class="bi bi-box-arrow-right me-1"></i>Выйти
@@ -41,7 +41,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Основная информация -->
                         <div class="col-md-8">
                             <div class="mb-5">
@@ -49,7 +49,7 @@
                                 <form method="POST" action="{{ route('profile.update') }}">
                                     @csrf
                                     @method('PUT')
-                                    
+
                                     <div class="row g-3 mb-4">
                                         <div class="col-md-6">
                                             <label for="name" class="form-label fw-medium">Имя</label>
@@ -62,20 +62,20 @@
                                                    class="form-control form-control-lg">
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-4">
                                         <label for="bio" class="form-label fw-medium">О себе</label>
                                         <textarea id="bio" name="bio" rows="3"
                                                   class="form-control form-control-lg">{{ Auth::user()->bio }}</textarea>
                                     </div>
-                                    
-                                    <button type="submit" 
+
+                                    <button type="submit"
                                             class="btn btn-primary px-4 py-2 rounded-pill">
                                         <i class="bi bi-save me-2"></i>Сохранить изменения
                                     </button>
                                 </form>
                             </div>
-                            
+
                             <div class="pt-4 border-top">
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <h2 class="h4 fw-bold text-dark">Мои посты</h2>
@@ -94,7 +94,7 @@
                                                     <a href="{{ route('posts.show', $post->slug) }}" class="text-decoration-none">
                                                         <div class="ratio ratio-1x1 rounded overflow-hidden bg-light">
                                                             @if($post->image)
-                                                                <img src="{{ asset('storage/' . $post->image) }}" 
+                                                                <img src="{{ asset('storage/' . $post->image) }}"
                                                                      alt="{{ $post->title }}"
                                                                      class="img-fluid object-fit-cover">
                                                             @else
@@ -105,7 +105,7 @@
                                                         </div>
                                                     </a>
                                                 </div>
-                                                
+
                                                 <!-- Контент поста -->
                                                 <div class="col-md-9">
                                                     <div class="d-flex justify-content-between align-items-start mb-2">
@@ -113,7 +113,7 @@
                                                             <h3 class="h5 mb-1 text-dark">{{ $post->title }}</h3>
                                                         </a>
                                                         <div class="dropdown">
-                                                            <button class="btn btn-sm btn-outline-secondary rounded-circle" type="button" 
+                                                            <button class="btn btn-sm btn-outline-secondary rounded-circle" type="button"
                                                                     id="dropdownMenuButton-{{ $post->id }}" data-bs-toggle="dropdown" aria-expanded="false">
                                                                 <i class="bi bi-three-dots-vertical"></i>
                                                             </button>
@@ -140,9 +140,9 @@
                                                             @if($post->published_at > now())
                                                                 <span class="badge bg-warning text-dark">Ожидает публикации</span>
                                                             @endif
-                                                            <span class="badge bg-light text-dark ms-2">
+                                                            <a href="{{ route('posts.show', $post) }}" class="badge bg-light text-dark ms-2 text-decoration-none">
                                                                 <i class="bi bi-eye"></i> {{ $post->views }}
-                                                            </span>
+                                                            </a>
                                                         </div>
                                                     </div>
                                                 </div>

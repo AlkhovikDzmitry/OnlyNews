@@ -44,16 +44,21 @@ Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.s
 Route::get('/category/{category:slug}', [CategoryController::class, 'show'])
     ->name('category.show');
 
+Route::post('/posts/upload-image', [PostController::class, 'uploadImage'])->name('posts.upload-image')->middleware('auth');
 
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/posts/upload-image', [PostController::class, 'uploadImage'])->name('posts.upload-image');
+});
 
 // Аутентификация
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
-    
+
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
-    
+
     Route::get('/forgot-password', [AuthController::class, 'showLinkRequestForm'])->name('password.request');
     Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
     Route::get('/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
@@ -63,11 +68,11 @@ Route::middleware('guest')->group(function () {
 // Защищенные маршруты
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    
+
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
-    
+
     // Маршруты для управления постами
     Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
@@ -85,3 +90,4 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/posts/{post}/approve', [\App\Http\Controllers\Admin\PostController::class, 'approve'])->name('admin.posts.approve');
     Route::post('/posts/{post}/reject', [\App\Http\Controllers\Admin\PostController::class, 'reject'])->name('admin.posts.reject');
 });
+

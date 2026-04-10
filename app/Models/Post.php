@@ -22,8 +22,10 @@ class Post extends Model
         'reading_time',
         'user_id',
         'status',
-        
+        'views', 
+
     ];
+
 
     const STATUS_PENDING = 'pending';
     const STATUS_APPROVED = 'approved';
@@ -65,7 +67,7 @@ class Post extends Model
             $post->reading_time = max(1, round(str_word_count(strip_tags($post->content)) / 200));
         });
 
-        
+
     }
 
     // Связи
