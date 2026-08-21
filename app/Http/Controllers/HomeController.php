@@ -10,8 +10,8 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $query = Post::withCount(['author', 'category', 'comments'])
-            ->with(['author', 'category']); 
+        $query = Post::withCount('comments')
+            ->with(['author', 'category']);
 
         // Если пользователь не администратор, показываем только одобренные посты
         if (!Auth::check() || !Auth::user()->is_admin) {

@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Password; 
 
 class AuthController extends Controller
 {
@@ -16,21 +15,6 @@ class AuthController extends Controller
     {
         return view('auth.register');
     }
-
-    public function sendResetLinkEmail(Request $request)
-    {
-        $request->validate(['email' => 'required|email']);
-
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
-
-        return $status === Password::RESET_LINK_SENT
-            ? back()->with('status', __($status))
-            : back()->withErrors(['email' => __($status)]);
-    }
-
-
 
     // Обработка регистрации
     public function register(Request $request)
@@ -89,10 +73,5 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('home');
-    }
-
-    public function showLinkRequestForm()
-    {
-        return view('auth.passwords.email');
     }
 }

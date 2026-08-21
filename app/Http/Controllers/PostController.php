@@ -83,8 +83,7 @@ class PostController extends Controller
         $post->category_id = $validated['category_id'];
         $post->status = Post::STATUS_PENDING;
         $post->published_at = $validated['published_at'] ?? now();
-        $post->reading_time = $this->calculateReadingTime($request->content);
-        $post->slug = Str::slug($validated['title']);
+
 
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('posts/thumbnails', 'public');
@@ -99,12 +98,6 @@ class PostController extends Controller
 
         return redirect()->route('posts.show', $post->slug)
             ->with('success', 'Пост успешно создан и отправлен на модерацию. Он станет видимым после одобрения администратором.');
-    }
-
-    protected function calculateReadingTime($content)
-    {
-        $wordCount = str_word_count(strip_tags($content));
-        return ceil($wordCount / 200);
     }
 
     public function edit($id)
@@ -150,12 +143,10 @@ class PostController extends Controller
             'content' => $validated['content'],
             'excerpt' => $validated['excerpt'] ?? null,
             'category_id' => $validated['category_id'],
-            'slug' => Str::slug($validated['title']),
-            'reading_time' => $this->calculateReadingTime($request->content),
         ]);
 
         if ($request->has('tags')) {
-            $post->tags()->sync($validated['tags']);
+            $post->tags()->sync($request->input('tags', []));
         }
 
         return redirect()->route('posts.show', $post->slug)
@@ -202,22 +193,23 @@ class PostController extends Controller
             ->with('success', 'Пост успешно удалён!');
     }
 
-    public function uploadImage(Request $request)
-    {
-        $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120'
-        ]);
+  public function uploadImage(Request $request)
+{
+    $request->validate([
+        'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120'
+    ]);
 
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('posts/content', $filename, 'public');
+    if ($request->hasFile('image')) {
+        $file = $request->file('image');
+        $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('posts/content', $filename, 'public');
 
-            return response()->json([
-                'url' => Storage::url($path)
-            ]);
-        }
+        // ВАЖНО: возвращаем правильный URL без лишних слешей
+        $url = asset('storage/' . $path);
 
-        return response()->json(['error' => 'Ошибка загрузки изображения'], 400);
+        return response()->json(['url' => $url]);
     }
+
+    return response()->json(['error' => 'Ошибка загрузки изображения'], 400);
+}
 }

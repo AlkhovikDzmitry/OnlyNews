@@ -22,7 +22,7 @@ class Post extends Model
         'reading_time',
         'user_id',
         'status',
-        'views', 
+        'views',
 
     ];
 
@@ -56,19 +56,51 @@ class Post extends Model
         parent::boot();
 
         static::creating(function ($post) {
-            $post->slug = Str::slug($post->title);
-            $post->excerpt = Str::limit(strip_tags($post->content), 150);
-            $post->reading_time = max(1, round(str_word_count(strip_tags($post->content)) / 200));
+            $post->slug = $post->generateUniqueSlug($post->title);
+            $post->excerpt = $post->excerpt ?: Str::limit(strip_tags($post->content), 150);
+            $post->reading_time = $post->calculateReadingTime($post->content);
         });
 
         static::updating(function ($post) {
-            $post->slug = Str::slug($post->title);
-            $post->excerpt = Str::limit(strip_tags($post->content), 150);
-            $post->reading_time = max(1, round(str_word_count(strip_tags($post->content)) / 200));
+            if ($post->isDirty('title')) {
+                $post->slug = $post->generateUniqueSlug($post->title);
+            }
+            if ($post->isDirty('content')) {
+                $post->reading_time = $post->calculateReadingTime($post->content);
+            }
         });
-
-
     }
+
+    public static function calculateReadingTime(?string $content): int
+    {
+        $text = trim(strip_tags((string) $content));
+
+        if ($text === '') {
+            return 1;
+        }
+
+        // str_word_count не считает кириллицу — используем юникод-регулярку
+        preg_match_all('/[\p{L}\p{N}]+/u', $text, $matches);
+
+        return max(1, (int) ceil(count($matches[0]) / 200));
+    }
+
+    public function generateUniqueSlug(string $title): string
+    {
+        $baseSlug = Str::slug($title) ?: Str::random(8);
+        $slug = $baseSlug;
+        $i = 1;
+
+        while (static::where('slug', $slug)
+            ->when($this->exists, fn ($q) => $q->whereKeyNot($this->getKey()))
+            ->exists()) {
+            $slug = $baseSlug . '-' . $i++;
+        }
+
+        return $slug;
+    }
+
+
 
     // Связи
 
@@ -104,9 +136,18 @@ class Post extends Model
         return $this->image ? asset('storage/' . $this->image) : 'https://via.placeholder.com/800x400';
     }
 
+
+    public function getContentAttribute($value)
+    {
+        // Декодируем HTML сущности
+        $decoded = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        return $decoded;
+    }
+
     public function getReadingTimeTextAttribute()
     {
-        return $this->reading_time . ' мин. чтения';
+        return ($this->reading_time ?? 1) . ' мин. чтения';
     }
 
     public function user()
@@ -119,18 +160,4 @@ class Post extends Model
     {
         return 'slug';
     }
-
-    public function getReadingTimeAttribute()
-{
-    // Пример: считаем слова в основном тексте или контенте поста
-    $wordCount = str_word_count(strip_tags($this->content));
-
-    // Средняя скорость чтения: 200 слов в минуту
-    $minutes = ceil($wordCount / 200);
-
-    return $minutes;
 }
-
-
-
-    }

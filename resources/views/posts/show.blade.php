@@ -35,7 +35,7 @@
                     </div>
                     
                     <div class="post-content mb-4">
-                        {!! nl2br(e($post->content)) !!}
+                        {!! $post->content !!}
                     </div>
                     
                     @if($post->tags->isNotEmpty())
@@ -247,3 +247,48 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 @endsection
+
+@push('styles')
+<style>
+    .post-content {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Вставленный извне контент часто содержит фиксированные ширины — ограничиваем всё */
+    .post-content :where(p, div, span, section, article, figure, ul, ol, li, blockquote) {
+        max-width: 100%;
+    }
+
+    /* Изображения и медиа не выходят за границы статьи */
+    .post-content img,
+    .post-content video,
+    .post-content iframe,
+    .post-content table {
+        max-width: 100%;
+    }
+
+    .post-content img {
+        height: auto;
+        border-radius: 8px;
+    }
+
+    .post-content iframe,
+    .post-content video {
+        aspect-ratio: 16 / 9;
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
+
+    .post-content table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .post-content pre {
+        overflow-x: auto;
+    }
+</style>
+@endpush
