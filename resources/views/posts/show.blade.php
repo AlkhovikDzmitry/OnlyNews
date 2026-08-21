@@ -16,7 +16,12 @@
                 <div class="card-body p-5">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <span class="badge bg-primary rounded-pill">{{ $post->category->name }}</span>
-                        <span class="text-muted">{{ $post->reading_time_text }}</span>
+                        <div class="d-flex align-items-center gap-3 text-muted">
+                            <span title="Просмотры">
+                                <i class="bi bi-eye me-1"></i>{{ number_format($post->views ?? 0, 0, '', ' ') }}
+                            </span>
+                            <span>{{ $post->reading_time_text }}</span>
+                        </div>
                     </div>
                     
                     <h1 class="h2 mb-3">{{ $post->title }}</h1>

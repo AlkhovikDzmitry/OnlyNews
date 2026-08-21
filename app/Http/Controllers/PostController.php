@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
@@ -40,6 +41,15 @@ class PostController extends Controller
 
         // Увеличиваем счетчик просмотров
         $post->increment('views');
+
+        // Сохраняем факт просмотра для истории «Вы смотрели»
+        if (auth()->check()) {
+            DB::table('post_views')->upsert(
+                ['user_id' => auth()->id(), 'post_id' => $post->id, 'viewed_at' => now()],
+                ['user_id', 'post_id'],
+                ['viewed_at']
+            );
+        }
 
         return view('posts.show', compact('post'));
     }

@@ -22,6 +22,10 @@ class CategoryController extends Controller
 
         $posts = $query->paginate(9);
 
-        return view('category.show', compact('category', 'posts'));
+        $viewedPosts = Auth::check()
+            ? Auth::user()->viewedPosts()->with(['author', 'category'])->limit(4)->get()
+            : collect();
+
+        return view('category.show', compact('category', 'posts', 'viewedPosts'));
     }
 }

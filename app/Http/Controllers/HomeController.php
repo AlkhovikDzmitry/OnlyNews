@@ -23,6 +23,10 @@ class HomeController extends Controller
 
         $categories = Category::all();
 
-        return view('home', compact('posts', 'categories'));
+        $viewedPosts = Auth::check()
+            ? Auth::user()->viewedPosts()->with(['author', 'category'])->limit(4)->get()
+            : collect();
+
+        return view('home', compact('posts', 'categories', 'viewedPosts'));
     }
 }

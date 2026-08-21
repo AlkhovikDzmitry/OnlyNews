@@ -33,6 +33,9 @@
                         <span class="badge bg-secondary" title="Количество комментариев">
                                 <i class="bi bi-chat-left-text"></i> {{ $post->comments_count }}
                             </span>
+                        <span class="badge bg-secondary" title="Просмотры">
+                                <i class="bi bi-eye"></i> {{ $post->views }}
+                            </span>
                         </div>
                    
                     
@@ -64,5 +67,7 @@
     <div class="mt-5">
         {{ $posts->links() }}
     </div>
+
+    @include('partials.viewed-posts')
 </div>
 @endsection

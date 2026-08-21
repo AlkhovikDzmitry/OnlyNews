@@ -35,6 +35,10 @@
                             </h2>
 
                             <p class="card-text text-muted">{{ Str::limit($post->excerpt, 100) }}</p>
+
+                            <span class="badge bg-secondary" title="Просмотры">
+                                <i class="bi bi-eye"></i> {{ $post->views }}
+                            </span>
                         </div>
 
                         <div class="card-footer bg-transparent border-top-0">
@@ -56,5 +60,7 @@
             {{ $posts->links() }}
         </div>
     @endif
+
+    @include('partials.viewed-posts')
 </div>
 @endsection

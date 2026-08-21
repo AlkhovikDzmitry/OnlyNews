@@ -33,6 +33,13 @@ class User extends Authenticatable
         return $this->hasMany(Post::class, 'author_id');
     }
 
+    public function viewedPosts()
+    {
+        return $this->belongsToMany(Post::class, 'post_views', 'user_id', 'post_id')
+            ->withPivot('viewed_at')
+            ->orderByPivot('viewed_at', 'desc');
+    }
+
     public function getAvatarUrlAttribute()
     {
         return $this->avatar 
